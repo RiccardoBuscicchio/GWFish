@@ -8,7 +8,7 @@ from GWFish.modules.utilities import (
     monochromatic_snr,
     stellar_mass_binary_snr,
 )
-from GWFish.modules.waveforms import LALFD_Waveform
+from GWFish.modules.waveforms import TaylorF2
 
 
 def test_lgwa_soundcheck_sensitivity_loader():
@@ -67,13 +67,18 @@ def test_stellar_mass_binary_snr_matches_characteristic_strain_integral():
         'geocent_time': 1187008882.,
     }
 
-    snr = stellar_mass_binary_snr(params, psd=psd, frequencyvector=frequencyvector)
+    snr = stellar_mass_binary_snr(
+        params,
+        psd=psd,
+        frequencyvector=frequencyvector,
+        waveform_class=TaylorF2,
+    )
 
-    wave = LALFD_Waveform('TaylorF2', params, {'frequencyvector': frequencyvector, 'f_ref': 50.})()
+    wave = TaylorF2('TaylorF2', params, {'frequencyvector': frequencyvector, 'f_ref': 50.})()
     h_tilde = np.sqrt(np.sum(np.abs(wave) ** 2, axis=1))
     h_char = 2 * frequencyvector * h_tilde
     h_noise = np.sqrt(frequencyvector * psd[:, 1])
-    expected = np.sqrt(np.trapz((h_char / h_noise) ** 2, np.log(frequencyvector)))
+    expected = np.sqrt(np.trapezoid((h_char / h_noise) ** 2, np.log(frequencyvector)))
 
     assert np.isfinite(snr)
     assert snr > 0

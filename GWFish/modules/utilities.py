@@ -190,7 +190,7 @@ def stellar_mass_binary_snr(
     h_tilde = np.sqrt(np.sum(np.abs(polarizations[valid, :]) ** 2, axis=1))
     h_char = 2 * ff[valid] * h_tilde
     integrand = (h_char ** 2) / (ff[valid] * sn[valid])
-    snr_sq = np.trapz(integrand, np.log(ff[valid]))
+    snr_sq = np.trapezoid(integrand, np.log(ff[valid]))
     return float(np.sqrt(max(snr_sq, 0.0)))
     
 def add_new_detector(detector_name, dictionary, config=DEFAULT_CONFIG):
